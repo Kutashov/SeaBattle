@@ -22,7 +22,6 @@ import classes.Player;
 /**
  * 
  * @author AlexandrKutashov
- * @version 0.6
  * 
  */
 
@@ -45,7 +44,9 @@ public class Log extends JPanel {
         scrollPane.setRequestFocusEnabled(true);
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent arg0) {
-				arg0.getAdjustable().setValue(arg0.getAdjustable().getMaximum());
+				if (arg0.getSource().equals(textFieldMessage)) {
+					arg0.getAdjustable().setValue(arg0.getAdjustable().getMaximum());	
+				}
 				
 			}
         });
@@ -54,7 +55,7 @@ public class Log extends JPanel {
         
         textFieldMessage = new JTextField();
         textFieldMessage.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e) {
             if (!textFieldMessage.getText().equals("")) {
               try {
 				sendMessage(Player.getNickname() + ": " + textFieldMessage.getText());

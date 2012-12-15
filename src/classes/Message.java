@@ -6,7 +6,6 @@ import java.io.Serializable;
 /**
  * 
  * @author AlexandrKutashov
- * @version 0.6
  * 
  */
 
@@ -22,7 +21,7 @@ public class Message implements Serializable {
     
     public Message(String body) {
         this.body = body;
-        this.title = "game";
+        this.title = "Game";
     }
 
 

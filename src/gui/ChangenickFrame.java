@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,7 +11,6 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -26,7 +26,7 @@ public class ChangenickFrame extends JFrame {
 	private JLabel lblChangeTo;
 	private JTextField textFieldnewNickname;
 	
-	public ChangenickFrame(final Player player, final MainMenu mainFrame) {
+	public ChangenickFrame() {
 		  
 		setResizable(false);
 	    setIconImage(Toolkit.getDefaultToolkit().getImage(ChangenickFrame.class.getResource("/resources/addressbook.png")));
@@ -43,10 +43,13 @@ public class ChangenickFrame extends JFrame {
 	    textFieldoldNickname.setColumns(10);
 	    textFieldoldNickname.setText(Player.getNickname());
 	    textFieldoldNickname.setEditable(false);
+	   
 	
 	    lblChangeTo = new JLabel("Change to");
 	    lblChangeTo.setFont(new Font("Times New Roman", 0, 15));
 	    textFieldnewNickname = new JTextField();
+	    
+	    
 	    textFieldnewNickname.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		if ((!textFieldnewNickname.getText().equals("")) && (!textFieldnewNickname.getText().equals(Player.getNickname()))) {
@@ -57,9 +60,9 @@ public class ChangenickFrame extends JFrame {
 				
 	    				e1.printStackTrace();
 	    			}
-	    		player.setNickname(textFieldnewNickname.getText());
-	    		mainFrame.setTitle("Sea Battle: " + Player.getNickname());
-	    		dispose();
+	    			Player.setNickname(textFieldnewNickname.getText());
+	    			((Frame) MainMenu.getMainFrame()).setTitle("Sea Battle: " + Player.getNickname());
+	    			dispose();
 	          
 	    		}
 	    	}
@@ -78,10 +81,10 @@ public class ChangenickFrame extends JFrame {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-	          player.setNickname(textFieldnewNickname.getText());
-	          mainFrame.setTitle("Sea Battle: " + Player.getNickname());
+	          Player.setNickname(textFieldnewNickname.getText());
+	          ((Frame) MainMenu.getMainFrame()).setTitle("Sea Battle: " + Player.getNickname());
 	          dispose();
-	          JOptionPane.showMessageDialog(null, "Your nickname has been successfully changed", "Success", 1);
+	          
 	        }
 	      }
 	    });
