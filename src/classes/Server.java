@@ -95,12 +95,14 @@ public final class Server extends Thread {
         						Player.sendMessage("Response", "You win");
         						JOptionPane.showMessageDialog(MainMenu.getMainFrame(), "You losed :(", "What a pity!", 2);
         						Player.stopGame();
+        						MainMenu.runServer();
+        						break;
         					}
         					
-        				}
-        				
-        			
-        			} 
+        				}			
+        			} else {
+        				Player.sendMessage("Response", "Was");
+        			}
                 } else if (message.getTitle().equals("Response")) {
         				
                 	Point point = Player.getLastAttacked();
@@ -115,21 +117,30 @@ public final class Server extends Thread {
                 	} else if (message.getBody().equals("You win")) {
                 		JOptionPane.showMessageDialog(MainMenu.getMainFrame(), "You win! :)", "Congratulations!", 2);
                 		Player.stopGame();
+                		MainMenu.runServer();
+                		break;
                 	}
+                	Player.setGameStatus(Status.GAME);
         		}
                 
                 
                 
             } while(true);
+            conn.close();
+            join();  
         }
         catch(IOException e)
         {
             JOptionPane.showMessageDialog(null, "IO problem happened", "Port listener error", 0);
+            MainMenu.runServer();
         }
         catch(ClassNotFoundException e)
         {
             JOptionPane.showMessageDialog(null, "Unknown answer from target", "Port listener error", 0);
-        }
+        } catch (InterruptedException e) {
+			
+			e.printStackTrace();
+		}
     }
 
     

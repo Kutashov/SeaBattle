@@ -14,7 +14,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -24,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import classes.Player;
+import classes.ResourceUtil;
 import classes.Server;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -41,6 +41,7 @@ public class MainMenu extends JFrame {
 	
 	private static final long serialVersionUID = 2032726310837517393L;
 	private JPanel contentPane;
+	private static ServerSocket server;
 	private static MainMenu mainFrame;
 	protected Log log;
 	protected static Server serverSocket;
@@ -61,15 +62,14 @@ public class MainMenu extends JFrame {
 		}
 	
 		mainFrame = new MainMenu();
+		runServer();
 		
-		mainFrame.runServer();
-		
-  }
+	}
 
-  public MainMenu() throws IOException {
+	public MainMenu() throws IOException {
 	  
+  		setIconImage(Toolkit.getDefaultToolkit().getImage(ResourceUtil.getIconURL("star-medal-gold-green")));
 	  	setResizable(false);
-	  	setIconImage(Toolkit.getDefaultToolkit().getImage(MainMenu.class.getResource("/resources/star-medal-gold-green.png")));
 	
 	  	setBounds(100, 100, 825, DEFAULT_WIDTH);
 	  	setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -85,7 +85,7 @@ public class MainMenu extends JFrame {
 	  	menuBar.add(mnStart);
 	
 	  	JMenuItem mntmChangeNickname = new JMenuItem("Change nickname");
-	  	mntmChangeNickname.setIcon(new ImageIcon(MainMenu.class.getResource("/resources/addressbook.png")));
+	  	mntmChangeNickname.setIcon(ResourceUtil.getIcon("addressbook"));
 	  	mntmChangeNickname.addActionListener(new ActionListener() {
 	  		public void actionPerformed(ActionEvent e) {
 	  			JFrame changeNick = new ChangenickFrame();
@@ -101,25 +101,14 @@ public class MainMenu extends JFrame {
 	    	  	connFrame.setVisible(true);
 	  		}
 	  	});
-	  	mntmConnect.setIcon(new ImageIcon(MainMenu.class.getResource("/resources/radar.png")));
+	  	mntmConnect.setIcon(ResourceUtil.getIcon("radar"));
 	  	mnStart.add(mntmConnect);
-	
-	  	JMenu mnGame = new JMenu("Game");
-	  	menuBar.add(mnGame);
-	
-	  	JMenuItem mntmSave = new JMenuItem("Save");
-	  	mntmSave.setIcon(new ImageIcon(MainMenu.class.getResource("/resources/floppydisc.png")));
-	  	mnGame.add(mntmSave);
-	
-	  	JMenuItem mntmLoad = new JMenuItem("Load");
-	  	mntmLoad.setIcon(new ImageIcon(MainMenu.class.getResource("/resources/controllButton-Play.png")));
-	  	mnGame.add(mntmLoad);
 	
 	  	JMenu mnAbout = new JMenu("About");
 	  	menuBar.add(mnAbout);
 	
 	  	JMenuItem mntmFeedback = new JMenuItem("Feedback");
-	  	mntmFeedback.setIcon(new ImageIcon(MainMenu.class.getResource("/resources/facebook-alternative.png")));
+	  	mntmFeedback.setIcon(ResourceUtil.getIcon("facebook-alternative"));
 	  	mntmFeedback.addActionListener(new ActionListener() {
 	  		public void actionPerformed(ActionEvent arg0) {
 	  			JOptionPane.showMessageDialog(MainMenu.getMainFrame(), "Made by Kutashov Alexandr\nIf you find any bugs, please mail me to kutashov.alexandr@yandex.ru", "About", 1);
@@ -226,16 +215,15 @@ public class MainMenu extends JFrame {
 	  	);
 	    contentPane.setLayout(gl_contentPane);
 	    setVisible(true);
-	  }
+	    server = new ServerSocket(Player.getPort());
+	    server.setSoTimeout(5000);
+	}
 	
-	public void runServer() {
+	public static void runServer() {
 		  
 		try {
-			ServerSocket server = new ServerSocket(Player.getPort());
-			server.setSoTimeout(5000);
 			Socket sock = null;
-			while (serverSocket == null) {
-				
+			while (serverSocket == null) {	
 				try {
 					sock = server.accept();
 				} catch (SocketTimeoutException e) {

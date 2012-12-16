@@ -6,4 +6,4 @@ package classes;
  * 
  */
 
-public enum  Status {EMPTY, KILLED, DECK, UNDEFINED, MISSED, PREPARATION, GAME, FREE}
+public enum  Status {EMPTY, KILLED, DECK, UNDEFINED, MISSED, PREPARATION, GAME, FREE, WAITING}

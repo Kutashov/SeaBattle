@@ -3,8 +3,8 @@ package gui;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.sql.Time;
 
@@ -14,7 +14,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-
 
 import classes.Message;
 import classes.Player;
@@ -33,23 +32,42 @@ public class Log extends JPanel {
 	private static final long serialVersionUID = 6993393251000586109L;
 	private static JTextArea textAreaLog;
 	private static JTextField textFieldMessage;
+	private static JScrollPane scrollPane;
     
 	
     public Log() {
     	textAreaLog = new JTextArea();
         textAreaLog.setFont(new Font("Times New Roman", 0, 13));
         textAreaLog.setEditable(false);
+        scrollPane  = new JScrollPane();
        
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setRequestFocusEnabled(true);
-        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-			public void adjustmentValueChanged(AdjustmentEvent arg0) {
-				if (arg0.getSource().equals(textFieldMessage)) {
-					arg0.getAdjustable().setValue(arg0.getAdjustable().getMaximum());	
-				}
+        textAreaLog.addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+			
+				
 				
 			}
-        });
+			
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				
+			}
+		});
+		
+        
+ 
         
         
         
@@ -87,13 +105,13 @@ public class Log extends JPanel {
         setLayout(groupLayout);
     }
 
-    public static void sendMessage(String msg) throws IOException {
+    public static void sendMessage(String msg) {
         textAreaLog.append(getTime()+ msg + "\n");
         
     }
 
     public static void sendMessage(Message message) {
-        textAreaLog.append(getTime() + message.getBody() + "\n");
+        sendMessage(message.getBody());
 
     }
 

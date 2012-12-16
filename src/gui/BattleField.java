@@ -7,12 +7,12 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import classes.Player;
+import classes.ResourceUtil;
 import classes.Ship;
 import classes.Status;
 
@@ -45,7 +45,7 @@ public class BattleField extends JPanel {
 	    for (int i = 0; i < size; ++i)
 	      for (int j = 0; j < size; ++j) {
 	        status[i][j] = Status.EMPTY;
-	        buttons[i][j] = new JButton(new ImageIcon(MainMenu.class.getResource("/resources/key-empty.png")));
+	        buttons[i][j] = new JButton(ResourceUtil.getIcon("key-empty"));
 	        buttons[i][j].setToolTipText(String.valueOf(letters[j]) + (i + 1));
 	        buttons[i][j].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	
@@ -60,10 +60,12 @@ public class BattleField extends JPanel {
 	        			try {
 							Player.sendMessage("Shoot", I + " " + J);
 							Player.setLastAttacked(new Point(I, J));
+							Player.setGameStatus(Status.WAITING);
+						
 						} catch (IOException e) {
 							
 							e.printStackTrace();
-						}
+						} 
 	        			
 	        		}
 	        		
@@ -79,7 +81,7 @@ public class BattleField extends JPanel {
 		for (int i = 0; i < size; i++) {
 		      for (int j = 0; j < size; j++) { 
 		    	  status[i][j] = Status.EMPTY;
-		    	  buttons[i][j].setIcon(new ImageIcon(MainMenu.class.getResource("/resources/key-empty.png")));
+		    	  buttons[i][j].setIcon(ResourceUtil.getIcon("key-empty"));
 		      }
 		}
 	}
@@ -101,11 +103,11 @@ public class BattleField extends JPanel {
 			status[i][j] = stat;
 			
 			switch (stat) {
-				case DECK: buttons[i][j].setIcon(new ImageIcon(MainMenu.class.getResource("/resources/key-star-empty.png")));
+				case DECK: buttons[i][j].setIcon(ResourceUtil.getIcon("key-star-empty"));
 						break;
-				case KILLED: buttons[i][j].setIcon(new ImageIcon(MainMenu.class.getResource("/resources/key-star-full.png")));
+				case KILLED: buttons[i][j].setIcon(ResourceUtil.getIcon("key-star-full"));
 						break;
-				case MISSED: buttons[i][j].setIcon(new ImageIcon(MainMenu.class.getResource("/resources/key-period.png")));
+				case MISSED: buttons[i][j].setIcon(ResourceUtil.getIcon("key-period"));
 						break;
 				default:
 						break;

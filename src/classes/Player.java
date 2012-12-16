@@ -32,6 +32,7 @@ public class Player {
     private static boolean enemyReadiness;
     private static boolean myReadiness;
     private static Point lastAttacked;
+    private static Socket conn;
 	
     public Player() {
         nickname = "Username" + new Random().nextInt(999);
@@ -80,7 +81,7 @@ public class Player {
 	}
     
     public static void establishConnection (String IP) throws IOException {
-    	Socket conn = new Socket(IP, port);
+    	conn = new Socket(IP, port);
         out = new ObjectOutputStream(conn.getOutputStream());
         in = new ObjectInputStream(conn.getInputStream());
      
@@ -99,7 +100,7 @@ public class Player {
 		return null;
 	}
 
-	public static void breakConnection() {
+	public static void breakConnection() throws IOException {
         out = null;
         in = null;     
 	}
@@ -133,6 +134,7 @@ public class Player {
 	public static void setShips () {
 		
 		gameStatus = Status.PREPARATION;
+		refreshFields();
 		
 	}
 
@@ -145,37 +147,56 @@ public class Player {
 		for (Ship ship : ships) {
 			
 			while (true) {
-				int i = random.nextInt(10);
-				int j = random.nextInt(10);
-				if (isAvailableToSet(i, j, i + 1 - ship.getDeck(), j)) {
-					int k = i + 1 - ship.getDeck();
-					for (; k <= i; ++k) {
-						ship.addPosition(k, j);
-						myBattleField.setButtonStatus(k, j, Status.DECK);
+				final int i = random.nextInt(10);
+				final int j = random.nextInt(10);
+				int n = random.nextInt(4);
+				if (n == 0) {
+					if (isAvailableToSet(i, j, i + 1 - ship.getDeck(), j)) {
+						int k = i + 1 - ship.getDeck();
+						for (; k <= i; ++k) {
+							ship.addPosition(k, j);
+							myBattleField.setButtonStatus(k, j, Status.DECK);
+						}
+						break;
+					} else {
+						++n;
 					}
-					break;
-				} else if (isAvailableToSet(i, j, i - 1 + ship.getDeck(), j)) {
-					int k = i - 1 + ship.getDeck();
-					for (; k >= i; --k) {
-						ship.addPosition(k, j);
-						myBattleField.setButtonStatus(k, j, Status.DECK);
+				} 
+				if (n == 1) {
+					if (isAvailableToSet(i, j, i - 1 + ship.getDeck(), j)) {
+						int k = i - 1 + ship.getDeck();
+						for (; k >= i; --k) {
+							ship.addPosition(k, j);
+							myBattleField.setButtonStatus(k, j, Status.DECK);
+						}
+						break;
+					} else {
+						++n;
 					}
-					break;
-				} else if (isAvailableToSet(i, j, i , j + 1 - ship.getDeck())) {
-					int k = j + 1 - ship.getDeck();
-					for (; k <= j; ++k) {
-						ship.addPosition(i, k);
-						myBattleField.setButtonStatus(i, k, Status.DECK);
+				} 
+				if (n == 2) {
+					if (isAvailableToSet(i, j, i , j + 1 - ship.getDeck())) {
+						int k = j + 1 - ship.getDeck();
+						for (; k <= j; ++k) {
+							ship.addPosition(i, k);
+							myBattleField.setButtonStatus(i, k, Status.DECK);
+						}
+						break;
+					} else {
+						++n;
 					}
-					break;
-				} else if (isAvailableToSet(i, j, i, j - 1 + ship.getDeck())) {
-					int k = j - 1 + ship.getDeck();
-					for (; k >= j; --k) {
-						ship.addPosition(i, k);
-						myBattleField.setButtonStatus(i, k, Status.DECK);
+				} 
+				if (n == 3) {
+					if (isAvailableToSet(i, j, i, j - 1 + ship.getDeck())) {
+						int k = j - 1 + ship.getDeck();
+						for (; k >= j; --k) {
+							ship.addPosition(i, k);
+							myBattleField.setButtonStatus(i, k, Status.DECK);
+						}
+						break;
 					}
-					break;
-				}
+				} 
+				
 			}	
 		}
 		
@@ -241,7 +262,7 @@ public class Player {
 		return true;
 	}
 
-	public static void stopGame () {
+	public static void stopGame () throws IOException {
 		
 		gameStatus = Status.FREE;
 		MainMenu.defaultFrame();

@@ -53,6 +53,7 @@ public class ChangenickFrame extends JFrame {
 	    textFieldnewNickname.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		if ((!textFieldnewNickname.getText().equals("")) && (!textFieldnewNickname.getText().equals(Player.getNickname()))) {
+	    			
 	    			try {
 	    				Log.sendMessage(Player.getNickname() + " has changed his nickname to " + textFieldnewNickname.getText());
 	    				Player.sendMessage(Player.getNickname() + " has changed his nickname to " + textFieldnewNickname.getText());
@@ -75,15 +76,17 @@ public class ChangenickFrame extends JFrame {
 	    btnChange.addActionListener(new ActionListener() {
 	      public void actionPerformed(ActionEvent e) {
 	        if ((!textFieldnewNickname.getText().equals("")) && (!textFieldnewNickname.getText().equals(Player.getNickname()))) {
-	          try {
-				Log.sendMessage(Player.getNickname() + " has changed his nickname to " + textFieldnewNickname.getText());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-	          Player.setNickname(textFieldnewNickname.getText());
-	          ((Frame) MainMenu.getMainFrame()).setTitle("Sea Battle: " + Player.getNickname());
-	          dispose();
+	          
+	        	try {
+	        		Log.sendMessage(Player.getNickname() + " has changed his nickname to " + textFieldnewNickname.getText());
+					Player.sendMessage(Player.getNickname() + " has changed his nickname to " + textFieldnewNickname.getText());
+				} catch (IOException e1) {
+					
+					e1.printStackTrace();
+				}
+	        	Player.setNickname(textFieldnewNickname.getText());
+	        	((Frame) MainMenu.getMainFrame()).setTitle("Sea Battle: " + Player.getNickname());
+	        	dispose();
 	          
 	        }
 	      }
