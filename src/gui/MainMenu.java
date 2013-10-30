@@ -44,6 +44,8 @@ import javax.swing.JButton;
 public class MainMenu extends JFrame {
 
 	private static final long serialVersionUID = 2032726310837517393L;
+	static final String APP_NAME = "SeaBattle";
+
 	private JPanel contentPane;
 	private static ServerSocket server;
 	private static MainMenu mainFrame;
@@ -80,7 +82,7 @@ public class MainMenu extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		player = new Player();
-		setTitle("Sea Battle: " + Player.getNickname());
+		setTitle(APP_NAME + ": " + Player.getNickname() + Player.getPostName());
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -119,7 +121,7 @@ public class MainMenu extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JOptionPane.showMessageDialog(
 						MainMenu.getMainFrame(),
-						"Made by Kutashov Alexandr\nIf you find any bugs, please mail me to kutashov.alexandr@yandex.ru",
+						"Made by Alexandr Kutashov\nIf you find any bugs, please mail me to kutashov.alexandr@yandex.ru",
 						"About", 1);
 			}
 		});

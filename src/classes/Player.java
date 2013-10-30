@@ -4,8 +4,12 @@ import java.awt.Point;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
@@ -21,97 +25,137 @@ import gui.MainMenu;
 public class Player {
 
 	private static String nickname;
-    private static Status gameStatus;
-    private static boolean myTurn;
-    private static List<Ship> ships = new ArrayList<Ship>();
-    private static BattleField myBattleField;
-    private static BattleField enemyBattleField;
-    private static ObjectOutputStream out;
-    private static ObjectInputStream in;
-    private final static int port = 8033;
-    private static boolean enemyReadiness;
-    private static boolean myReadiness;
-    private static Point lastAttacked;
-    private static Socket conn;
-	
-    public Player() {
-        nickname = "Username" + new Random().nextInt(999);
-        gameStatus = Status.FREE;
-    }
+	private static Status gameStatus;
+	private static boolean myTurn;
+	private static List<Ship> ships = new ArrayList<Ship>();
+	private static BattleField myBattleField;
+	private static BattleField enemyBattleField;
+	private static ObjectOutputStream out;
+	private static ObjectInputStream in;
+	private final static int port = 8033;
+	private static boolean enemyReadiness;
+	private static boolean myReadiness;
+	private static Point lastAttacked;
+	private static Socket conn;
+	private static String postName;
 
-    public static boolean isPlaying() {
-        if (gameStatus.equals(Status.FREE)) {
-        	return false;
-        } else {
-        	return true;
-        }
-    }
+	public Player() {
 
+		nickname = "Username" + new Random().nextInt(999);
+		gameStatus = Status.FREE;
+		
+		String ip = getIPAddress();
 
-    public static void setNickname(String nick) {
-        nickname = nick;
-    }
-
-    public static String getNickname() {
-        return nickname;
-    }
-    
-    public static void sendMessage(String title, String body) throws IOException {
-    	if (out != null) {
-    		out.writeObject(new Message(title, body));
-            out.flush();
-    	}
-        
-    }
-    
-    public static void sendMessage(String body) throws IOException {
-    	
-    	if (out != null) {
-    		out.writeObject(new Message(body));
-            out.flush();
-    	}  
-    }
-    
-    public static void sendMessage(Message message) throws IOException {
-    	
-		if (out != null) {
-    		out.writeObject(message);
-            out.flush();
-    	}  
+		if (ip == null) {
+			postName = "";
+		} else {
+			postName = " (" + ip + ")";
+		}
 	}
-    
-    public static void establishConnection (String IP) throws IOException {
-    	conn = new Socket(IP, port);
-        out = new ObjectOutputStream(conn.getOutputStream());
-        in = new ObjectInputStream(conn.getInputStream());
-     
-    }
 
-    public static void startGame() throws IOException {
-    	
-    	gameStatus = Status.GAME;	
-    }
+	public static boolean isPlaying() {
+		if (gameStatus.equals(Status.FREE)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
+	private String getIPAddress() {
 
-	public static Message getMessage() throws IOException, ClassNotFoundException {
+		String ip = null;
+		try {
+			Enumeration<NetworkInterface> interfaces = NetworkInterface
+					.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface iface = interfaces.nextElement();
+
+				if (iface.isLoopback() || !iface.isUp()
+						|| !iface.isPointToPoint()) {
+					continue;
+				}
+
+				Enumeration<InetAddress> addresses = iface.getInetAddresses();
+				while (addresses.hasMoreElements()) {
+					ip = addresses.nextElement().getHostAddress();
+					if (ip.matches("[0-9.]+")) {
+						return ip;
+					}
+
+				}
+			}
+		} catch (SocketException e) {
+			throw new RuntimeException(e);
+		}
+
+		return ip;
+	}
+
+	public static void setNickname(String nick) {
+		nickname = nick;
+	}
+
+	public static String getNickname() {
+		return nickname;
+	}
+
+	public static void sendMessage(String title, String body)
+			throws IOException {
+		if (out != null) {
+			out.writeObject(new Message(title, body));
+			out.flush();
+		}
+
+	}
+
+	public static void sendMessage(String body) throws IOException {
+
+		if (out != null) {
+			out.writeObject(new Message(body));
+			out.flush();
+		}
+	}
+
+	public static void sendMessage(Message message) throws IOException {
+
+		if (out != null) {
+			out.writeObject(message);
+			out.flush();
+		}
+	}
+
+	public static void establishConnection(String IP) throws IOException {
+		conn = new Socket(IP, port);
+		out = new ObjectOutputStream(conn.getOutputStream());
+		in = new ObjectInputStream(conn.getInputStream());
+
+	}
+
+	public static void startGame() throws IOException {
+
+		gameStatus = Status.GAME;
+	}
+
+	public static Message getMessage() throws IOException,
+			ClassNotFoundException {
 		if (in != null) {
 			return (Message) in.readObject();
-    	}
+		}
 		return null;
 	}
 
 	public static void breakConnection() throws IOException {
-        out = null;
-        in = null;     
+		out = null;
+		in = null;
 	}
 
 	public static void refreshFields() {
-		  
+
 		myBattleField.refreshField();
 		enemyBattleField.refreshField();
 	}
-	
-	public static int getPort () {
+
+	public static int getPort() {
 		return port;
 	}
 
@@ -131,21 +175,21 @@ public class Player {
 		Player.in = in;
 	}
 
-	public static void setShips () {
-		
+	public static void setShips() {
+
 		gameStatus = Status.PREPARATION;
 		refreshFields();
-		
+
 	}
 
-	public static void randomShips () {
-		
+	public static void randomShips() {
+
 		fillShipes();
 		myBattleField.refreshField();
-		
+
 		Random random = new Random();
 		for (Ship ship : ships) {
-			
+
 			while (true) {
 				final int i = random.nextInt(10);
 				final int j = random.nextInt(10);
@@ -161,7 +205,7 @@ public class Player {
 					} else {
 						++n;
 					}
-				} 
+				}
 				if (n == 1) {
 					if (isAvailableToSet(i, j, i - 1 + ship.getDeck(), j)) {
 						int k = i - 1 + ship.getDeck();
@@ -173,9 +217,9 @@ public class Player {
 					} else {
 						++n;
 					}
-				} 
+				}
 				if (n == 2) {
-					if (isAvailableToSet(i, j, i , j + 1 - ship.getDeck())) {
+					if (isAvailableToSet(i, j, i, j + 1 - ship.getDeck())) {
 						int k = j + 1 - ship.getDeck();
 						for (; k <= j; ++k) {
 							ship.addPosition(i, k);
@@ -185,7 +229,7 @@ public class Player {
 					} else {
 						++n;
 					}
-				} 
+				}
 				if (n == 3) {
 					if (isAvailableToSet(i, j, i, j - 1 + ship.getDeck())) {
 						int k = j - 1 + ship.getDeck();
@@ -195,15 +239,15 @@ public class Player {
 						}
 						break;
 					}
-				} 
-				
-			}	
+				}
+
+			}
 		}
-		
+
 	}
-	
-	public static boolean isAvailableToSet (int x0, int y0, int x1, int y1) {
-		
+
+	public static boolean isAvailableToSet(int x0, int y0, int x1, int y1) {
+
 		if (!(x0 >= 0 && x0 < 10)) {
 			return false;
 		}
@@ -228,60 +272,64 @@ public class Player {
 		}
 		for (int i = x0; i <= x1; ++i) {
 			for (int j = y0; j <= y1; ++j) {
-				if (myBattleField.getButtonStatus(i, j).equals(Status.DECK) 
-						|| myBattleField.getButtonStatus(i, j).equals(Status.UNDEFINED)) {
+				if (myBattleField.getButtonStatus(i, j).equals(Status.DECK)
+						|| myBattleField.getButtonStatus(i, j).equals(
+								Status.UNDEFINED)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i-1, j-1).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i - 1, j - 1).equals(
+						Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i-1, j).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i - 1, j).equals(Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i, j-1).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i, j - 1).equals(Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i-1, j+1).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i - 1, j + 1).equals(
+						Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i+1, j-1).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i + 1, j - 1).equals(
+						Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i+1, j).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i + 1, j).equals(Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i, j+1).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i, j + 1).equals(Status.DECK)) {
 					return false;
 				}
-				if (myBattleField.getButtonStatus(i+1, j+1).equals(Status.DECK)) {
+				if (myBattleField.getButtonStatus(i + 1, j + 1).equals(
+						Status.DECK)) {
 					return false;
 				}
 			}
-			
+
 		}
 		return true;
 	}
 
-	public static void stopGame () throws IOException {
-		
+	public static void stopGame() throws IOException {
+
 		gameStatus = Status.FREE;
 		MainMenu.defaultFrame();
 		breakConnection();
 	}
 
-	private static void fillShipes () {
-		
+	private static void fillShipes() {
+
 		if (!ships.isEmpty()) {
 			ships.clear();
 		}
-		
+
 		for (int i = 4; i >= 1; --i) {
 			for (int j = 1; j <= 5 - i; ++j) {
 				ships.add(new Ship(i));
 			}
 		}
-		
-		
+
 	}
 
 	public static void setMyBattleField(BattleField myBattleField) {
@@ -313,7 +361,7 @@ public class Player {
 	}
 
 	public static void setMyTurn(boolean myTurn) {
-		
+
 		Player.myTurn = myTurn;
 		MainMenu.setYourTurn(myTurn);
 	}
@@ -325,29 +373,29 @@ public class Player {
 	public static void setGameStatus(Status gameStatus) {
 		Player.gameStatus = gameStatus;
 	}
-    
-	public static Status getMyButtonStatus (int i, int j) {
+
+	public static Status getMyButtonStatus(int i, int j) {
 		return myBattleField.getButtonStatus(i, j);
 	}
 
 	public static void setMyButtonStatus(Integer i, Integer j, Status stat) {
 		myBattleField.setButtonStatus(i, j, stat);
-		
+
 	}
-	
-	public static Status getEnemyButtonStatus (int i, int j) {
+
+	public static Status getEnemyButtonStatus(int i, int j) {
 		return enemyBattleField.getButtonStatus(i, j);
 	}
 
 	public static void setEnemyButtonStatus(Integer i, Integer j, Status stat) {
 		enemyBattleField.setButtonStatus(i, j, stat);
-		
+
 	}
 
 	public static boolean checkIsKilled(Integer i, Integer j) {
-		
+
 		Point curPoint = new Point(i, j);
-		
+
 		for (Ship ship : ships) {
 			for (Point point : ship.getPosition()) {
 				if (point.equals(curPoint)) {
@@ -365,92 +413,97 @@ public class Player {
 	}
 
 	public static boolean isLose() {
-		
+
 		return ships.isEmpty();
 	}
-	
 
 	public static Point getLastAttacked() {
 		return lastAttacked;
 	}
-	
 
 	public static void setLastAttacked(Point lastattacked) {
 		Player.lastAttacked = lastattacked;
 	}
 
-	
 	public static void removeEnemyShip(Point point) {
 
 		List<Point> points = formEnemyShip(point);
 		for (Point pt : points) {
 			setEnemyButtonStatus(pt.x, pt.y, Status.KILLED);
-			if (getEnemyButtonStatus(pt.x+1, pt.y).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x+1, pt.y, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x + 1, pt.y).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x + 1, pt.y, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x-1, pt.y).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x-1, pt.y, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x - 1, pt.y).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x - 1, pt.y, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x, pt.y+1).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x, pt.y+1, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x, pt.y + 1).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x, pt.y + 1, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x, pt.y-1).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x, pt.y-1, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x, pt.y - 1).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x, pt.y - 1, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x+1, pt.y+1).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x+1, pt.y+1, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x + 1, pt.y + 1).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x + 1, pt.y + 1, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x-1, pt.y-1).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x-1, pt.y-1, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x - 1, pt.y - 1).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x - 1, pt.y - 1, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x-1, pt.y+1).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x-1, pt.y+1, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x - 1, pt.y + 1).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x - 1, pt.y + 1, Status.MISSED);
 			}
-			if (getEnemyButtonStatus(pt.x+1, pt.y-1).equals(Status.EMPTY)) {
-				setEnemyButtonStatus(pt.x+1, pt.y-1, Status.MISSED);
+			if (getEnemyButtonStatus(pt.x + 1, pt.y - 1).equals(Status.EMPTY)) {
+				setEnemyButtonStatus(pt.x + 1, pt.y - 1, Status.MISSED);
 			}
 		}
-		
+
 	}
-	
-	private static List<Point> formEnemyShip (Point point) {
-		
+
+	private static List<Point> formEnemyShip(Point point) {
+
 		List<Point> points = new ArrayList<Point>();
 		points.add(point);
 		boolean was = true;
 		while (was) {
 			was = false;
-			for (Point pt : points) { 
-				if (getEnemyButtonStatus(pt.x+1, pt.y).equals(Status.KILLED) && !points.contains(new Point(pt.x+1, pt.y))) {
-					points.add(new Point(pt.x+1, pt.y));
+			for (Point pt : points) {
+				if (getEnemyButtonStatus(pt.x + 1, pt.y).equals(Status.KILLED)
+						&& !points.contains(new Point(pt.x + 1, pt.y))) {
+					points.add(new Point(pt.x + 1, pt.y));
 					was = true;
 					break;
 				}
-				if (getEnemyButtonStatus(pt.x-1, pt.y).equals(Status.KILLED) && !points.contains(new Point(pt.x-1, pt.y))) {
-					points.add(new Point(pt.x-1, pt.y));
+				if (getEnemyButtonStatus(pt.x - 1, pt.y).equals(Status.KILLED)
+						&& !points.contains(new Point(pt.x - 1, pt.y))) {
+					points.add(new Point(pt.x - 1, pt.y));
 					was = true;
 					break;
 				}
-				if (getEnemyButtonStatus(pt.x, pt.y+1).equals(Status.KILLED) && !points.contains(new Point(pt.x, pt.y+1))) {
-					points.add(new Point(pt.x, pt.y+1));
+				if (getEnemyButtonStatus(pt.x, pt.y + 1).equals(Status.KILLED)
+						&& !points.contains(new Point(pt.x, pt.y + 1))) {
+					points.add(new Point(pt.x, pt.y + 1));
 					was = true;
 					break;
 				}
-				if (getEnemyButtonStatus(pt.x, pt.y-1).equals(Status.KILLED) && !points.contains(new Point(pt.x, pt.y-1))) {
-					points.add(new Point(pt.x, pt.y-1));
+				if (getEnemyButtonStatus(pt.x, pt.y - 1).equals(Status.KILLED)
+						&& !points.contains(new Point(pt.x, pt.y - 1))) {
+					points.add(new Point(pt.x, pt.y - 1));
 					was = true;
 					break;
 				}
 			}
-			
+
 		}
-		
+
 		return points;
-		
+
 	}
 
-	public static boolean areShipsSetted () {
-		
+	public static boolean areShipsSetted() {
+
 		return !ships.isEmpty();
+	}
+
+	public static String getPostName() {
+		return postName;
 	}
 }

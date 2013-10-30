@@ -100,7 +100,7 @@ public class ConnectionFrame extends JFrame {
 				}
 			}
 		});
-		textFieldIP.setToolTipText("Enter IP adress you want connect to");
+		textFieldIP.setToolTipText("Enter IP address you want connect to");
 		textFieldIP.setColumns(10);
 
 		btnConnect.addActionListener(new ActionListener() {

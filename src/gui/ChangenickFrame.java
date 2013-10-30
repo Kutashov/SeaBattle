@@ -69,8 +69,10 @@ public class ChangenickFrame extends JFrame {
 						e1.printStackTrace();
 					}
 					Player.setNickname(textFieldnewNickname.getText());
-					((Frame) MainMenu.getMainFrame()).setTitle("Sea Battle: "
-							+ Player.getNickname());
+					((Frame) MainMenu.getMainFrame())
+							.setTitle(MainMenu.APP_NAME + ": "
+									+ Player.getNickname()
+									+ Player.getPostName());
 					dispose();
 
 				}
@@ -99,8 +101,10 @@ public class ChangenickFrame extends JFrame {
 						e1.printStackTrace();
 					}
 					Player.setNickname(textFieldnewNickname.getText());
-					((Frame) MainMenu.getMainFrame()).setTitle("Sea Battle: "
-							+ Player.getNickname());
+					((Frame) MainMenu.getMainFrame())
+							.setTitle(MainMenu.APP_NAME + ": "
+									+ Player.getNickname()
+									+ Player.getPostName());
 					dispose();
 
 				}
